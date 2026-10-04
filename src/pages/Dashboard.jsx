@@ -20,7 +20,6 @@ const Dashboard = () => {
           <div style={{ padding: '20px', border: '1px solid #28a745', borderRadius: '8px', width: '220px', textAlign: 'center', backgroundColor: '#e8f5e9' }}>
             <h3>Tạo Mã QR Điểm Danh</h3>
             <p style={{ fontSize: '13px', color: '#666' }}>Tạo phiên điểm danh cho lớp học</p>
-            {/* Đã thêm onClick chuyển trang sang /create-attendance ở đây */}
             <button 
               onClick={() => navigate('/create-attendance')}
               style={{ padding: '10px 16px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
@@ -42,11 +41,14 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Lịch sử điểm danh */}
+        {/* Lịch sử điểm danh (Đã gắn onClick chuyển sang trang /history) */}
         <div style={{ padding: '20px', border: '1px solid #6c757d', borderRadius: '8px', width: '220px', textAlign: 'center', backgroundColor: '#f8f9fa' }}>
           <h3>Lịch Sử Điểm Danh</h3>
           <p style={{ fontSize: '13px', color: '#666' }}>Xem lại các buổi đã điểm danh</p>
-          <button style={{ padding: '10px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+          <button 
+            onClick={() => navigate('/history')}
+            style={{ padding: '10px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
             Xem Chi Tiết
           </button>
         </div>
