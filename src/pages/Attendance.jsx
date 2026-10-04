@@ -7,7 +7,7 @@ const Attendance = () => {
   const [sessionId, setSessionId] = useState('');
   const [className, setClassName] = useState('');
   
-  // Thêm state cho Họ tên, MSSV và Thời gian điểm danh
+  // State cho Họ tên, MSSV và Thời gian điểm danh
   const [fullName, setFullName] = useState('');
   const [studentId, setStudentId] = useState('');
   const [attendanceTime, setAttendanceTime] = useState('');
@@ -37,16 +37,24 @@ const Attendance = () => {
     const timeString = now.toLocaleTimeString('vi-VN') + ' - ' + now.toLocaleDateString('vi-VN');
     setAttendanceTime(timeString);
 
-    // Dữ liệu chuẩn bị gửi lên Backend .NET sau này
-    const attendanceData = {
+    // Tạo bản ghi điểm danh mới
+    const newRecord = {
+      id: Date.now(),
       fullName,
       studentId,
       sessionId,
-      className,
+      className: className || 'Lớp học phần',
       time: timeString
     };
 
-    console.log("Dữ liệu điểm danh:", attendanceData);
+    // 1. Lấy lịch sử cũ từ localStorage ra (nếu chưa có thì là mảng rỗng)
+    const existingHistory = JSON.parse(localStorage.getItem('attendanceHistory')) || [];
+
+    // 2. Thêm bản ghi mới lên đầu danh sách và lưu ngược lại vào localStorage
+    const updatedHistory = [newRecord, ...existingHistory];
+    localStorage.setItem('attendanceHistory', JSON.stringify(updatedHistory));
+
+    console.log("Đã lưu điểm danh vào localStorage:", newRecord);
     setIsSubmitted(true);
   };
 
