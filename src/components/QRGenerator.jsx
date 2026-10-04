@@ -6,9 +6,9 @@ const QRGenerator = () => {
   const [sessionId, setSessionId] = useState('SESSION_' + Math.floor(Math.random() * 100000));
   const [isGenerated, setIsGenerated] = useState(false);
 
-  // Thay vì dùng JSON.stringify, ta tạo một URL dẫn trực tiếp đến trang điểm danh kèm sessionId
-  // (Sau này chạy thật, em thay 'http://localhost:5173' bằng domain của website EduCheck)
-  const qrData = `http://localhost:5173/attendance?sessionId=${sessionId}&className=${encodeURIComponent(className)}`;
+  // Tự động lấy domain hiện tại (Localhost hoặc Vercel URL)
+  const baseUrl = window.location.origin;
+  const qrData = `${baseUrl}/attendance?sessionId=${sessionId}&className=${encodeURIComponent(className)}`;
 
   const handleGenerate = (e) => {
     e.preventDefault();
