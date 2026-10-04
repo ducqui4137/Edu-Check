@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const Attendance = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   
   const [sessionId, setSessionId] = useState('');
   const [className, setClassName] = useState('');
+  
+  // Thêm state cho Họ tên, MSSV và Thời gian điểm danh
+  const [fullName, setFullName] = useState('');
   const [studentId, setStudentId] = useState('');
+  const [attendanceTime, setAttendanceTime] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Tự động lấy tham số từ URL khi sinh viên quét mã QR truy cập vào
+  // Tự động lấy tham số từ URL khi quét mã QR
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const sId = params.get('sessionId');
@@ -22,13 +25,28 @@ const Attendance = () => {
 
   const handleSubmitAttendance = (e) => {
     e.preventDefault();
-    if (!studentId.trim()) {
-      alert('Vui lòng nhập mã số sinh viên!');
+    
+    // Kiểm tra dữ liệu nhập vào
+    if (!fullName.trim() || !studentId.trim()) {
+      alert('Vui lòng nhập đầy đủ Họ tên và Mã số sinh viên!');
       return;
     }
 
-    // Sau này đoạn này sẽ gọi Axios gửi dữ liệu lên Backend .NET (.NET API)
-    console.log({ studentId, sessionId, className });
+    // Lấy thời gian hiện tại lúc bấm xác nhận
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('vi-VN') + ' - ' + now.toLocaleDateString('vi-VN');
+    setAttendanceTime(timeString);
+
+    // Dữ liệu chuẩn bị gửi lên Backend .NET sau này
+    const attendanceData = {
+      fullName,
+      studentId,
+      sessionId,
+      className,
+      time: timeString
+    };
+
+    console.log("Dữ liệu điểm danh:", attendanceData);
     setIsSubmitted(true);
   };
 
@@ -43,14 +61,25 @@ const Attendance = () => {
             <p style={{ margin: 0, fontSize: '13px', color: '#666' }}><strong>Mã phiên:</strong> {sessionId || 'N/A'}</p>
           </div>
 
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '6px', color: '#333' }}>Họ và tên:</label>
+            <input 
+              type="text" 
+              placeholder="Ví dụ: Nguyễn Văn A"
+              value={fullName} 
+              onChange={(e) => setFullName(e.target.value)} 
+              style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontSize: '15px' }}
+            />
+          </div>
+
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px', color: '#333' }}>Nhập Mã Số Sinh Viên (MSSV):</label>
+            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '6px', color: '#333' }}>Mã số sinh viên (MSSV):</label>
             <input 
               type="text" 
               placeholder="Ví dụ: B2101234"
               value={studentId} 
               onChange={(e) => setStudentId(e.target.value)} 
-              style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontSize: '16px' }}
+              style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontSize: '15px' }}
             />
           </div>
 
@@ -62,16 +91,21 @@ const Attendance = () => {
           </button>
         </form>
       ) : (
-        <div style={{ padding: '25px', backgroundColor: '#d1e7dd', color: '#0f5132', borderRadius: '8px', marginTop: '20px' }}>
-          <h3 style={{ margin: '0 0 10px 0' }}>✅ Điểm Danh Thành Công!</h3>
-          <p style={{ margin: '5px 0' }}>MSSV: <strong>{studentId}</strong></p>
-          <p style={{ margin: '5px 0' }}>Lớp: <strong>{className}</strong></p>
-          <button 
-            onClick={() => setIsSubmitted(false)}
-            style={{ marginTop: '15px', padding: '8px 16px', backgroundColor: '#0f5132', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-          >
-            Điểm danh lại
-          </button>
+        <div style={{ padding: '25px', backgroundColor: '#d1e7dd', color: '#0f5132', borderRadius: '8px', marginTop: '20px', textAlign: 'left' }}>
+          <h3 style={{ margin: '0 0 15px 0', textAlign: 'center' }}>✅ Điểm Danh Thành Công!</h3>
+          <p style={{ margin: '8px 0' }}>Họ tên: <strong>{fullName}</strong></p>
+          <p style={{ margin: '8px 0' }}>MSSV: <strong>{studentId}</strong></p>
+          <p style={{ margin: '8px 0' }}>Lớp: <strong>{className}</strong></p>
+          <p style={{ margin: '8px 0' }}>Thời gian: <strong>{attendanceTime}</strong></p>
+          
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <button 
+              onClick={() => setIsSubmitted(false)}
+              style={{ padding: '8px 16px', backgroundColor: '#0f5132', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              Điểm danh lại
+            </button>
+          </div>
         </div>
       )}
     </div>
