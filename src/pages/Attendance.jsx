@@ -14,11 +14,9 @@ const Attendance = () => {
   const [attendanceTime, setAttendanceTime] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   
-  // Trạng thái điều khiển Camera
   const [scanning, setScanning] = useState(false);
   const scannerRef = useRef(null);
 
-  // 1. Lấy thông tin nếu truy cập trực tiếp bằng URL có sẵn tham số (giống như quét qua Zalo/Camera ngoài)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const sId = params.get('sessionId');
@@ -26,9 +24,15 @@ const Attendance = () => {
     
     if (sId) setSessionId(sId);
     if (cName) setClassName(decodeURIComponent(cName));
+
+    // Cleanup an toàn khi rời trang
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(() => {});
+      }
+    };
   }, [location]);
 
-  // 2. Xử lý bật Camera quét QR trực tiếp trong web
   const startScanner = () => {
     setScanning(true);
     setTimeout(() => {
@@ -36,13 +40,11 @@ const Attendance = () => {
       scannerRef.current = html5QrCode;
 
       html5QrCode.start(
-        { facingMode: "environment" }, // Dùng camera sau nếu có
+        { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
-          // Khi quét thành công mã QR
           console.log("Đã quét được QR:", decodedText);
           try {
-            // Kiểm tra xem QR có chứa link hoặc chuỗi sessionId không
             if (decodedText.includes('sessionId=')) {
               const url = new URL(decodedText.startsWith('http') ? decodedText : `http://localhost/#/${decodedText}`);
               const sId = url.searchParams.get('sessionId');
@@ -56,17 +58,14 @@ const Attendance = () => {
             setSessionId(decodedText);
           }
 
-          // Dừng camera sau khi quét thành công
           html5QrCode.stop().then(() => {
             setScanning(false);
           }).catch(err => console.error("Lỗi tắt camera:", err));
         },
-        (errorMessage) => {
-          // Lỗi quét từng khung hình (bỏ qua để không spam console)
-        }
+        () => {}
       ).catch(err => {
         console.error("Không thể khởi động camera:", err);
-        alert("Không thể mở camera. Vui lòng kiểm tra quyền truy cập camera của trình duyệt!");
+        alert("Không thể mở camera. Vui lòng kiểm tra quyền truy cập!");
         setScanning(false);
       });
     }, 100);
@@ -76,9 +75,24 @@ const Attendance = () => {
     if (scannerRef.current) {
       scannerRef.current.stop().then(() => {
         setScanning(false);
-      }).catch(err => console.log(err));
+      }).catch(() => {
+        setScanning(false);
+      });
     } else {
       setScanning(false);
+    }
+  };
+
+  // Hàm xử lý quay lại an toàn
+  const handleBackToDashboard = () => {
+    if (scannerRef.current) {
+      scannerRef.current.stop().then(() => {
+        navigate('/dashboard');
+      }).catch(() => {
+        navigate('/dashboard');
+      });
+    } else {
+      navigate('/dashboard');
     }
   };
 
@@ -111,12 +125,10 @@ const Attendance = () => {
 
   return (
     <div style={{ padding: '30px', fontFamily: 'Arial, sans-serif', maxWidth: '500px', margin: '30px auto', backgroundColor: '#fff', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-      {/* Nút Quay lại Dashboard chuẩn */}
+      {/* Nút Quay lại Dashboard đã sửa triệt để lỗi không bấm được */}
       <button 
-        onClick={() => {
-          stopScanner();
-          navigate('/dashboard');
-        }}
+        type="button"
+        onClick={handleBackToDashboard}
         style={{ marginBottom: '20px', padding: '8px 14px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
       >
         ⬅ Quay lại Dashboard
@@ -126,10 +138,10 @@ const Attendance = () => {
       
       {!isSubmitted ? (
         <div>
-          {/* Khu vực bật/tắt Camera quét QR */}
           <div style={{ marginBottom: '20px', textAlign: 'center' }}>
             {!scanning ? (
               <button 
+                type="button"
                 onClick={startScanner}
                 style={{ width: '100%', padding: '12px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', marginBottom: '10px' }}
               >
@@ -139,6 +151,7 @@ const Attendance = () => {
               <div>
                 <div id="reader" style={{ width: '100%', borderRadius: '8px', overflow: 'hidden' }}></div>
                 <button 
+                  type="button"
                   onClick={stopScanner}
                   style={{ marginTop: '10px', padding: '8px 16px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
                 >
@@ -194,6 +207,7 @@ const Attendance = () => {
           
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
             <button 
+              type="button"
               onClick={() => setIsSubmitted(false)}
               style={{ padding: '8px 16px', backgroundColor: '#0f5132', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
             >
