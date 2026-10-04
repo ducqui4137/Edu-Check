@@ -6,12 +6,8 @@ const History = () => {
   const [historyList, setHistoryList] = useState([]);
 
   useEffect(() => {
-    // Lấy danh sách điểm danh tạm thời từ localStorage (hoặc hiển thị dữ liệu mẫu nếu chưa có)
-    const savedData = JSON.parse(localStorage.getItem('attendanceHistory')) || [
-      { id: 1, fullName: 'Nguyễn Văn A', studentId: 'B2101234', className: 'Lập trình Web', time: '14:30:15 - 04/10/2026' },
-      { id: 2, fullName: 'Trần Thị B', studentId: 'B2105678', className: 'Lập trình Web', time: '14:31:02 - 04/10/2026' },
-      { id: 3, fullName: 'Lê Văn C', studentId: 'B2109999', className: 'Cơ sở dữ liệu', time: '09:15:44 - 03/10/2026' }
-    ];
+    // Chỉ lấy dữ liệu thực tế từ localStorage (nếu chưa có thì trả về mảng rỗng)
+    const savedData = JSON.parse(localStorage.getItem('attendanceHistory')) || [];
     setHistoryList(savedData);
   }, []);
 
