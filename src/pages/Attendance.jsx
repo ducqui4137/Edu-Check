@@ -1,71 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+return (
+    <div style={{ padding: '30px', fontFamily: 'Arial, sans-serif', maxWidth: '500px', margin: '40px auto', backgroundColor: '#fff', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+      {/* Nút quay lại Dashboard */}
+      <button 
+        onClick={() => navigate('/dashboard')}
+        style={{ marginBottom: '20px', padding: '8px 14px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+      >
+        ⬅ Quay lại Dashboard
+      </button>
 
-const Attendance = () => {
-  const location = useLocation();
-  
-  const [sessionId, setSessionId] = useState('');
-  const [className, setClassName] = useState('');
-  
-  // State cho Họ tên, MSSV và Thời gian điểm danh
-  const [fullName, setFullName] = useState('');
-  const [studentId, setStudentId] = useState('');
-  const [attendanceTime, setAttendanceTime] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
-
-  // Tự động lấy tham số từ URL khi quét mã QR
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const sId = params.get('sessionId');
-    const cName = params.get('className');
-    
-    if (sId) setSessionId(sId);
-    if (cName) setClassName(decodeURIComponent(cName));
-  }, [location]);
-
-  const handleSubmitAttendance = (e) => {
-    e.preventDefault();
-    
-    // Kiểm tra dữ liệu nhập vào
-    if (!fullName.trim() || !studentId.trim()) {
-      alert('Vui lòng nhập đầy đủ Họ tên và Mã số sinh viên!');
-      return;
-    }
-
-    // Lấy thời gian hiện tại lúc bấm xác nhận
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('vi-VN') + ' - ' + now.toLocaleDateString('vi-VN');
-    setAttendanceTime(timeString);
-
-    // Tạo bản ghi điểm danh mới
-    const newRecord = {
-      id: Date.now(),
-      fullName,
-      studentId,
-      sessionId,
-      className: className || 'Lớp học phần',
-      time: timeString
-    };
-
-    // 1. Lấy lịch sử cũ từ localStorage ra (nếu chưa có thì là mảng rỗng)
-    const existingHistory = JSON.parse(localStorage.getItem('attendanceHistory')) || [];
-
-    // 2. Thêm bản ghi mới lên đầu danh sách và lưu ngược lại vào localStorage
-    const updatedHistory = [newRecord, ...existingHistory];
-    localStorage.setItem('attendanceHistory', JSON.stringify(updatedHistory));
-
-    console.log("Đã lưu điểm danh vào localStorage:", newRecord);
-    setIsSubmitted(true);
-  };
-
-  return (
-    <div style={{ padding: '30px', fontFamily: 'Arial, sans-serif', maxWidth: '500px', margin: '40px auto', backgroundColor: '#fff', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', textAlign: 'center' }}>
-      <h2 style={{ color: '#2c3e50', marginBottom: '10px' }}>Điểm Danh Sinh Viên CTUT</h2>
+      <h2 style={{ color: '#2c3e50', marginBottom: '10px', textAlign: 'center' }}>Điểm Danh Sinh Viên CTUT</h2>
       
       {!isSubmitted ? (
         <form onSubmit={handleSubmitAttendance} style={{ marginTop: '20px', textAlign: 'left' }}>
           <div style={{ marginBottom: '15px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e9ecef' }}>
-            <p style={{ margin: '0 0 8px 0', fontSize: '15px' }}><strong>Lớp học:</strong> {className || 'Đang tải...'}</p>
+            <p style={{ margin: '0 0 8px 0', fontSize: '15px' }}><strong>Lớp học:</strong> {className || 'Lớp học phần (Mặc định)'}</p>
             <p style={{ margin: 0, fontSize: '13px', color: '#666' }}><strong>Mã phiên:</strong> {sessionId || 'N/A'}</p>
           </div>
 
@@ -118,6 +66,3 @@ const Attendance = () => {
       )}
     </div>
   );
-};
-
-export default Attendance;
